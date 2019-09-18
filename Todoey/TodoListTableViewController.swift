@@ -10,15 +10,21 @@ import UIKit
 
 class TodoListTableViewController: UITableViewController {
 
-    var itemList = ["find david", "Buy eggs", "Destroy demogorgon"]
+    var itemList = [""]
+    let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+
+        if let itemArray = defaults.array(forKey: "ItemList") as? [String] {
+            itemList = itemArray
+        }
     }
 
 
+    //--------------------------------------------
     // MARK: - TableView data source methods
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemList.count
     }
@@ -33,7 +39,7 @@ class TodoListTableViewController: UITableViewController {
     }
     
     
-    
+    //--------------------------------------------
     // MARK: - TableView delegate methods
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -45,9 +51,9 @@ class TodoListTableViewController: UITableViewController {
         }
         
         tableView.deselectRow(at: indexPath, animated: true)
-
     }
     
+    //--------------------------------------------
     // MARK: - Add items method
     
     @IBAction func addItemButtonPressed(_ sender: UIBarButtonItem) {
@@ -62,6 +68,8 @@ class TodoListTableViewController: UITableViewController {
             
             if !answer.text!.isBlank {
                 self.itemList.append(answer.text!)
+                self.defaults.set(self.itemList, forKey: "ItemList")
+
             }
             
             self.tableView.reloadData()
@@ -76,6 +84,7 @@ class TodoListTableViewController: UITableViewController {
 }
 
 
+//--------------------------------------------
 // MARK: - Utility extensions
 
 extension String {

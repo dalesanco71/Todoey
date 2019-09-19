@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9F4C4009233353C100391A2F /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F4C4008233353C100391A2F /* Item.swift */; };
+		9F4C400C2333560100391A2F /* ReadMe.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 9F4C400B2333560100391A2F /* ReadMe.rtf */; };
 		9FD91EE72331040000DE9DE9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD91EE62331040000DE9DE9 /* AppDelegate.swift */; };
 		9FD91EE92331040000DE9DE9 /* TodoListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD91EE82331040000DE9DE9 /* TodoListTableViewController.swift */; };
 		9FD91EEC2331040000DE9DE9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9FD91EEA2331040000DE9DE9 /* Main.storyboard */; };
@@ -17,6 +18,7 @@
 
 /* Begin PBXFileReference section */
 		9F4C4008233353C100391A2F /* Item.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
+		9F4C400B2333560100391A2F /* ReadMe.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = ReadMe.rtf; sourceTree = "<group>"; };
 		9FD91EE32331040000DE9DE9 /* Todoey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Todoey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FD91EE62331040000DE9DE9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9FD91EE82331040000DE9DE9 /* TodoListTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListTableViewController.swift; sourceTree = "<group>"; };
@@ -75,6 +77,7 @@
 		9FD91EDA2331040000DE9DE9 = {
 			isa = PBXGroup;
 			children = (
+				9F4C400B2333560100391A2F /* ReadMe.rtf */,
 				9FD91EE52331040000DE9DE9 /* Todoey */,
 				9FD91EE42331040000DE9DE9 /* Products */,
 			);
@@ -159,6 +162,7 @@
 			files = (
 				9FD91EF12331040200DE9DE9 /* LaunchScreen.storyboard in Resources */,
 				9FD91EEE2331040200DE9DE9 /* Assets.xcassets in Resources */,
+				9F4C400C2333560100391A2F /* ReadMe.rtf in Resources */,
 				9FD91EEC2331040000DE9DE9 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

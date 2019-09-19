@@ -9,19 +9,17 @@
 import UIKit
 
 class TodoListTableViewController: UITableViewController {
-
-    var itemList = [""]
-    let defaults = UserDefaults.standard
+    
+    var itemList = [Item]()
+    var dataPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("ItemDataFile.plist")
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        if let itemArray = defaults.array(forKey: "ItemList") as? [String] {
-            itemList = itemArray
-        }
+        
+        loadData()
     }
-
-
+    
+    
     //--------------------------------------------
     // MARK: - TableView data source methods
     
@@ -32,8 +30,10 @@ class TodoListTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
-        
-        cell.textLabel?.text = itemList[indexPath.row]
+        let item = itemList[indexPath.row]
+
+        cell.textLabel?.text = item.title
+        cell.accessoryType = item.done ? .checkmark : .none
         
         return cell
     }
@@ -41,17 +41,20 @@ class TodoListTableViewController: UITableViewController {
     
     //--------------------------------------------
     // MARK: - TableView delegate methods
-
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        } else {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+        let item = itemList[indexPath.row]
         
+        tableView.cellForRow(at: indexPath)?.accessoryType = item.done ? .none : .checkmark
+        
+        itemList[indexPath.row].done = !itemList[indexPath.row].done
+        
+        self.saveData()
+
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
     
     //--------------------------------------------
     // MARK: - Add items method
@@ -64,22 +67,60 @@ class TodoListTableViewController: UITableViewController {
         ac.textFields![0].placeholder = "Add new todo item"
         
         let addAction = UIAlertAction(title: "Add", style: .default) { (action) in
-            let answer = ac.textFields![0]
-            
-            if !answer.text!.isBlank {
-                self.itemList.append(answer.text!)
-                self.defaults.set(self.itemList, forKey: "ItemList")
+            let newItem = Item()
+            newItem.title = ac.textFields![0].text!
 
+            if !(newItem.title.isBlank) {
+                self.itemList.append(newItem)
+                
+                self.saveData()
             }
-            
-            self.tableView.reloadData()
-            
         }
         
         ac.addAction(addAction)
         
         present(ac, animated: true)
+        
+    }
+    
+    
+    //--------------------------------------------
+    // MARK: - Utility methods
+    
+    // Save Data Items to File Mnager
+    func saveData () {
+        
+        let encoder = PropertyListEncoder()
+
+        do{
+            let data = try encoder.encode(self.itemList)
+            do {
+                try data.write(to: self.dataPath!)
+            } catch {
+                print("error writting file to dataPath")
+            }
+        } catch {
+            print("error encoding itemlist")
+        }
+        self.tableView.reloadData()
+    }
+    
+    // Load Data Items from File Manager
+    func loadData () {
+        
+        let decoder = PropertyListDecoder()
+        
+        do{
+            let data = try Data.init(contentsOf: self.dataPath!)
             
+            do {
+                self.itemList = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("error decoding data")
+            }
+        } catch {
+            print("error reading data file from dataPath")
+        }
     }
 }
 

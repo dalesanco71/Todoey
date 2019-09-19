@@ -7,16 +7,20 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListTableViewController: UITableViewController {
     
     var itemList = [Item]()
-    var dataPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("ItemDataFile.plist")
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
+        
         loadData()
+        
     }
     
     
@@ -55,6 +59,21 @@ class TodoListTableViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    // add swipe to delete to table. Data is deleted from CoreData
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == .delete) {
+            
+            context.delete(itemList[indexPath.row])
+            itemList.remove(at: indexPath.row)
+            
+            self.saveData()
+        }
+    }
+    
     
     //--------------------------------------------
     // MARK: - Add items method
@@ -67,10 +86,10 @@ class TodoListTableViewController: UITableViewController {
         ac.textFields![0].placeholder = "Add new todo item"
         
         let addAction = UIAlertAction(title: "Add", style: .default) { (action) in
-            let newItem = Item()
+            let newItem = Item(context: self.context)
             newItem.title = ac.textFields![0].text!
 
-            if !(newItem.title.isBlank) {
+            if !(newItem.title!.isBlank) {
                 self.itemList.append(newItem)
                 
                 self.saveData()
@@ -87,42 +106,33 @@ class TodoListTableViewController: UITableViewController {
     //--------------------------------------------
     // MARK: - Utility methods
     
-    // Save Data Items to File Mnager
+    // Save Data Items to Core Data
     func saveData () {
-        
-        let encoder = PropertyListEncoder()
 
         do{
-            let data = try encoder.encode(self.itemList)
-            do {
-                try data.write(to: self.dataPath!)
-            } catch {
-                print("error writting file to dataPath")
-            }
+            try context.save()
         } catch {
-            print("error encoding itemlist")
+            print("error saving context \(error)")
         }
+        
         self.tableView.reloadData()
     }
     
-    // Load Data Items from File Manager
+    // Load Data Items from Core Datar
     func loadData () {
         
-        let decoder = PropertyListDecoder()
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
         
         do{
-            let data = try Data.init(contentsOf: self.dataPath!)
-            
-            do {
-                self.itemList = try decoder.decode([Item].self, from: data)
-            } catch {
-                print("error decoding data")
-            }
+            itemList = try context.fetch(request)
         } catch {
-            print("error reading data file from dataPath")
+            print("Error fetching data from CoreData \(error)")
         }
+        
     }
+    
 }
+
 
 
 //--------------------------------------------

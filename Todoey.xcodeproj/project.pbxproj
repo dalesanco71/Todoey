@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9F4C400F2333A23700391A2F /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9F4C400D2333A23700391A2F /* DataModel.xcdatamodeld */; };
+		9FA3E5D5233608A1005FA50D /* CategoriesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FA3E5D4233608A1005FA50D /* CategoriesTableViewController.swift */; };
 		9FD91EE72331040000DE9DE9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD91EE62331040000DE9DE9 /* AppDelegate.swift */; };
 		9FD91EE92331040000DE9DE9 /* TodoListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FD91EE82331040000DE9DE9 /* TodoListTableViewController.swift */; };
 		9FD91EEC2331040000DE9DE9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9FD91EEA2331040000DE9DE9 /* Main.storyboard */; };
@@ -17,6 +18,7 @@
 
 /* Begin PBXFileReference section */
 		9F4C400E2333A23700391A2F /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
+		9FA3E5D4233608A1005FA50D /* CategoriesTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesTableViewController.swift; sourceTree = "<group>"; };
 		9FD91EE32331040000DE9DE9 /* Todoey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Todoey.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FD91EE62331040000DE9DE9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9FD91EE82331040000DE9DE9 /* TodoListTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListTableViewController.swift; sourceTree = "<group>"; };
@@ -58,6 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				9FD91EE62331040000DE9DE9 /* AppDelegate.swift */,
+				9FA3E5D4233608A1005FA50D /* CategoriesTableViewController.swift */,
 				9FD91EE82331040000DE9DE9 /* TodoListTableViewController.swift */,
 			);
 			path = Controller;
@@ -173,6 +176,7 @@
 				9FD91EE92331040000DE9DE9 /* TodoListTableViewController.swift in Sources */,
 				9F4C400F2333A23700391A2F /* DataModel.xcdatamodeld in Sources */,
 				9FD91EE72331040000DE9DE9 /* AppDelegate.swift in Sources */,
+				9FA3E5D5233608A1005FA50D /* CategoriesTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

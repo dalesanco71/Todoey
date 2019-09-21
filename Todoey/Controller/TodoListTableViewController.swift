@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  TodoListTableViewController.swift
 //  Todoey
 //
 //  Created by Daniel Alesanco on 17/09/2019.
@@ -11,15 +11,22 @@ import CoreData
 
 class TodoListTableViewController: UITableViewController {
     
+    //--------------------------------------------
+    // MARK: global variables definition
+
     var itemList = [Item]()
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    var category : Category? {
+        didSet {
+            loadData()
+        }
+    }
+    
+    //--------------------------------------------
+    // MARK: Initialization
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        
-        loadData()
         
     }
     
@@ -28,12 +35,13 @@ class TodoListTableViewController: UITableViewController {
     // MARK: - TableView data source methods
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
         return itemList.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell", for: indexPath)
         let item = itemList[indexPath.row]
 
         cell.textLabel?.text = item.title
@@ -75,6 +83,8 @@ class TodoListTableViewController: UITableViewController {
     }
     
     
+    
+    
     //--------------------------------------------
     // MARK: - Add items method
     
@@ -88,16 +98,15 @@ class TodoListTableViewController: UITableViewController {
         let addAction = UIAlertAction(title: "Add", style: .default) { (action) in
             let newItem = Item(context: self.context)
             newItem.title = ac.textFields![0].text!
-
+            newItem.itemCategory = self.category
+            
             if !(newItem.title!.isBlank) {
                 self.itemList.append(newItem)
-                
                 self.saveData()
             }
         }
         
         ac.addAction(addAction)
-        
         present(ac, animated: true)
         
     }
@@ -119,9 +128,17 @@ class TodoListTableViewController: UITableViewController {
     }
     
     // Load Data Items from Core Datar
-    func loadData () {
+    func loadData (with request: NSFetchRequest<Item> = Item.fetchRequest()) {
         
-        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        let categoryPredicate =  NSPredicate(format: "itemCategory.name MATCHES[cd] %@", category!.name!)
+        
+        // if there are already predicates in the request (as search predicate) we add the category predicate
+        // otherwise the current predicate y only the category predicate
+        if let currentPredicate = request.predicate {
+            request.predicate = NSCompoundPredicate(type: .and, subpredicates: [categoryPredicate, currentPredicate])
+        } else {
+            request.predicate = categoryPredicate
+        }
         
         do{
             itemList = try context.fetch(request)
@@ -129,8 +146,29 @@ class TodoListTableViewController: UITableViewController {
             print("Error fetching data from CoreData \(error)")
         }
         
+        self.tableView.reloadData()
+
     }
+}
+
+//--------------------------------------------
+// MARK: - Search Bar delegate methods extension
+
+extension TodoListTableViewController : UISearchBarDelegate {
     
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        
+        // if there is no text to search then show all results (no request predicate)
+        if !(searchBar.text!.isEmpty) {
+            request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        }
+                
+        loadData(with: request)
+        
+        searchBar.resignFirstResponder()
+    }
 }
 
 

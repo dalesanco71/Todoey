@@ -7,24 +7,23 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoriesTableViewController: UITableViewController {
 
     //--------------------------------------------
     // MARK: global variables definition
     
-    var categoryList = [Category]()
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    
+    let realm  = try! Realm()
+    var categoryList: Results<Category>?
+
     //--------------------------------------------
     // MARK: Initialization
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        loadData()
-
+        loadCategory()
     }
 
     //--------------------------------------------
@@ -32,15 +31,17 @@ class CategoriesTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 
-        return categoryList.count
+        return categoryList?.count ?? 0
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        let category = categoryList[indexPath.row]
-
-        cell.textLabel?.text = category.name
+        
+        if let category = categoryList?[indexPath.row] {
+            
+            cell.textLabel?.text = category.name
+        }
         
         return cell
     }
@@ -48,7 +49,6 @@ class CategoriesTableViewController: UITableViewController {
     //--------------------------------------------
     // MARK: - TableView delegate methods
     
-  
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
@@ -57,10 +57,14 @@ class CategoriesTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if (editingStyle == .delete) {
             
-            context.delete(categoryList[indexPath.row])
-            categoryList.remove(at: indexPath.row)
-            
-            self.saveData()
+            do{
+                try realm.write {
+                    realm.delete(categoryList![indexPath.row])
+                    tableView.reloadData()
+                }
+            } catch {
+                print("error deleting category \(error)")
+            }
         }
     }
     
@@ -73,9 +77,9 @@ class CategoriesTableViewController: UITableViewController {
         
         let indexPath = tableView.indexPathForSelectedRow!
         
-        let remoteVC = segue.destination as! TodoListTableViewController
+        let remoteVC = segue.destination as! ItemListTableViewController
         
-        remoteVC.category = categoryList[indexPath.row]
+        remoteVC.currentCategory = categoryList![indexPath.row]
     }
     
     //--------------------------------------------
@@ -89,16 +93,22 @@ class CategoriesTableViewController: UITableViewController {
         ac.textFields![0].placeholder = "Add new category"
         
         let addAction = UIAlertAction(title: "Add", style: .default) { (action) in
-            let newCategory = Category(context: self.context)
-            newCategory.name = ac.textFields![0].text!
+            
+            let category = Category()
+            category.name = ac.textFields![0].text!
 
-            if !(newCategory.name!.isBlank) {
-                self.categoryList.append(newCategory)
-                
-                self.saveData()
+            if !(category.name.isBlank) {
+                do {
+                    try self.realm.write {
+                        self.realm.add(category)
+                        self.tableView.reloadData()
+                    }
+                } catch {
+                    print("error adding new category \(error)")
+                }
             }
         }
-        
+                
         ac.addAction(addAction)
         present(ac, animated: true)
         
@@ -106,30 +116,11 @@ class CategoriesTableViewController: UITableViewController {
     
     //--------------------------------------------
     // MARK: - Utility methods
-        
-    // Save Data Items to Core Data
-    func saveData () {
-
-        do{
-            try context.save()
-        } catch {
-            print("error saving context \(error)")
-        }
-            
-        self.tableView.reloadData()
-    }
-        
-    // Load Data Items from Core Datar
-    func loadData (with request: NSFetchRequest<Category> = Category.fetchRequest()) {
-            
-        do{
-            categoryList = try context.fetch(request)
-        } catch {
-            print("Error fetching data from CoreData \(error)")
-        }
-            
-        self.tableView.reloadData()
-
+                
+    func loadCategory(){
+    
+        categoryList = realm.objects(Category.self)
+        tableView.reloadData()
     }
 }
 
@@ -140,17 +131,20 @@ extension CategoriesTableViewController : UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         
-        let request : NSFetchRequest<Category> = Category.fetchRequest()
-        
-        // if there is no text to search then show all results (no request predicate)
-        if !(searchBar.text!.isEmpty) {
-            request.predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchBar.text!)
+        let searchPredicate = NSPredicate(format: "name CONTAINS[cd] %@", searchBar.text!)
+
+        if !(searchBar.text!.isBlank) {
+           
+            categoryList = realm.objects(Category.self).filter(searchPredicate)
+                
+        } else {
+            
+            categoryList = realm.objects(Category.self)
+                
         }
         
-        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        
-        loadData(with: request)
-        
+        tableView.reloadData()
+
         searchBar.resignFirstResponder()
     }
 }
